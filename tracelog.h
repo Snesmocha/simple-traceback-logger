@@ -26,16 +26,9 @@
 
 // enums
 
-typedef enum
-{
-	LOG_INFO,
-	LOG_TRACE,
-	LOG_DEBUG,
-	LOG_WARN,
-	LOG_ERROR,
-	LOG_FATAL,
-} warning;
 
+
+// terminal manipulation
 typedef enum
 {
     T_BG_WHITE = 47,
@@ -61,33 +54,6 @@ typedef enum
 } terminal_color;
 
 
-// globals and defines
-
-static int save_tracelog = 0;
-static int file_location = 0;
-static int timestamp = 0;
-
-static FILE* file_redirect = NULL;
-
-static int text_colors[6] = {
-	T_WHITE, 
-	T_GREEN,
-	T_CYAN,
-	T_YELLOW,
-	T_RED,
-	T_WHITE,
-};
-
-static int bg_colors[6] = {
-	T_RESET,
-	T_RESET,
-	T_RESET,
-	T_RESET,
-	T_RESET,
-	T_BG_RED, 
-};	
-
-
 FORCE_INLINE void set_terminal_color(terminal_color color)
 {
     printf("\033[%dm", color);
@@ -109,6 +75,89 @@ FORCE_INLINE void reset_terminal_bg_color()
     printf("\033[49m");
 }
 
+// setting parameters for trace log
+
+static int save_tracelog = 0;
+static int file_location = 0;
+static int timestamp = 0;
+
+static FILE* file_redirect = NULL;
+
+static const char* file_name = "traceback.txt";
+
+static int text_colors[6] = {
+	T_WHITE, 
+	T_GREEN,
+	T_CYAN,
+	T_YELLOW,
+	T_RED,
+	T_WHITE,
+};
+
+static int bg_colors[6] = {
+	T_RESET,
+	T_RESET,
+	T_RESET,
+	T_RESET,
+	T_RESET,
+	T_BG_RED, 
+};	
+
+FORCE_INLINE void enable_save_tracelog(void) 
+{
+    save_tracelog = 1;
+}
+
+FORCE_INLINE void enable_save_tracelog(void) 
+{
+    save_tracelog = 0;
+}
+
+
+FORCE_INLINE void enable_file_location(void) 
+{
+    file_location = 1;
+}
+
+FORCE_INLINE void disable_file_location(void) 
+{
+    file_location = 0;
+}
+
+FORCE_INLINE void enable_timestamp(void) 
+{
+    timestamp = 1;
+}
+
+FORCE_INLINE void disable_timestamp(void) 
+{
+    timestamp = 0;
+}
+
+
+FORCE_INLINE void set_file_redirect(FILE* file) 
+{
+    file_redirect = file;
+
+}
+
+FORCE_INLINE void set_log_file_name(const char* name) 
+{
+    file_name = name;
+}
+
+// trace log data
+
+typedef enum
+{
+	LOG_INFO,
+	LOG_TRACE,
+	LOG_DEBUG,
+	LOG_WARN,
+	LOG_ERROR,
+	LOG_FATAL,
+} warning;
+
 #ifndef DISABLE_LOG
 	#define TRACE_LOG(level, msg, ...) \
 		trace_log(level, msg, file_redirect, __FILE__, __LINE__, __func__, __VA_ARGS__)
@@ -125,14 +174,18 @@ static void trace_log(warning level, const char* msg, FILE* redirect, const char
 	
 	if (save_tracelog)
 	{
-		FILE* file_ptr = (redirect == NULL) ? redirect : fopen("traceback.txt", "a");
+		FILE* file_ptr = (redirect == NULL) ? redirect : fopen(file_name, "a");
 		
-		FILE_LOCATION_PRINT_TOFILE(file_ptr, file_name, line_number, func_name);
+		if (file_location)
+			FILE_LOCATION_PRINT_TOFILE(file_ptr, file_name, line_number, func_name);
 		
-		time_t t = time(NULL);
-		struct tm local = *localtime(&t);
-		
-		fprintf(file_ptr, "%d %d %d %d %d %d ", local.tm_year, local.tm_mon, local.tm_mday, local.tm_hour, local.tm_min, local.tm_sec);
+		if (timestamp)
+		{
+			time_t t = time(NULL);
+			struct tm local = *localtime(&t);
+			
+			fprintf(file_ptr, "%d %d %d %d %d %d ", local.tm_year, local.tm_mon, local.tm_mday, local.tm_hour, local.tm_min, local.tm_sec);
+		}
 		
 		switch (level)
 		{
