@@ -32,7 +32,7 @@ This is a simple single header file logger written in C99 that provides function
 
 int main() {
     // Enable time stamping and file location where stuff happened
-	enable_timestamp();
+    enable_timestamp();
     enable_file_location();
 	
 	
@@ -62,9 +62,9 @@ int main() {
 #include "trace_log.h"
 
 int main() {
-	enable_timestamp();
+    enable_timestamp();
     enable_file_location();
-	enable_save_tracelog();	// redirects print to file rather than to standard out
+    enable_save_tracelog();  // Redirects log output to a predefined file (traceback.txt)
 
     // Log an information message
     TRACE_LOG(LOG_INFO, "This is an info message.\n");
