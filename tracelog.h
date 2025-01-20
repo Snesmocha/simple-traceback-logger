@@ -24,10 +24,6 @@
 	{ 
 #endif
 
-// enums
-
-
-
 // terminal manipulation
 typedef enum
 {
