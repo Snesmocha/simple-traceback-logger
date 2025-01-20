@@ -90,7 +90,7 @@ int main() {
 
 ### Logging Into A Custom File Redirect
 
-```
+```c
 #include "trace_log.h"
 
 int main() {
