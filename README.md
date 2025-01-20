@@ -5,7 +5,7 @@ This is a simple single header file logger written in C99 that provides function
 ## Features
 
 - Logs messages with different severity levels: 
-  - `INFO`, `DEBUG`, `WARNING`, `ERROR`, `FATAL`.
+  - `INFO`, `TRACE`, `DEBUG`, `WARNING`, `ERROR`, `FATAL`.
 - Supports output to the console with color-coded messages.
 - Option to log messages to a file (`traceback.txt`).
 - Option to redirect messages however needed.
