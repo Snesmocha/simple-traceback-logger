@@ -2,6 +2,8 @@
 
 This is a simple single header file logger written in C99 that provides functionality to log messages with various severity levels such as INFO, DEBUG, WARNING, ERROR, and FATAL. It supports writing logs to both the console and a log file, with options to include timestamps and file location information in the log messages.
 
+It'll probably work in most compilers? I haven't tested but as long as the terminal supports posix escape codes, it'll probably be fine. I ain't supporting windows built in terminal escape codes... I would be screaming if I did 
+
 ## Features
 
 - Logs messages with different severity levels: 
