@@ -20,9 +20,13 @@
 
 
 #ifdef __cplusplus
-	extern "C"
-	{ 
+extern "C"
+{ 
 #endif
+
+// enums
+
+
 
 // terminal manipulation
 typedef enum
@@ -104,7 +108,7 @@ FORCE_INLINE void enable_save_tracelog(void)
     save_tracelog = 1;
 }
 
-FORCE_INLINE void enable_save_tracelog(void) 
+FORCE_INLINE void disable_save_tracelog(void) 
 {
     save_tracelog = 0;
 }
@@ -156,12 +160,25 @@ typedef enum
 
 #ifndef DISABLE_LOG
 	#define TRACE_LOG(level, msg, ...) \
-		trace_log(level, msg, file_redirect, __FILE__, __LINE__, __func__, __VA_ARGS__)
+		__trace_log(level, msg, file_redirect, __FILE__, __LINE__, __func__, __VA_ARGS__)
+		
 #else
 	#define TRACE_LOG(level, msg, ...) (void*)
 #endif
 
-static void trace_log(warning level, const char* msg, FILE* redirect, const char* file_name, int line_number, const char* func_name, ...)
+#ifndef DISABLE_ASSERT
+	#define ASSERT(c, msg)\
+		disable_save_tracelog()\
+		do{\
+			if(!c){\
+				__trace_log(LOG_FATAL, msg, file_redirect, __FILE__, __LINE__, __func__, __VA_ARGS__); \
+			}\
+		} while(0)\
+#else
+	#define ASSERT(c, msg) (void*)
+#endif
+
+static void __trace_log(warning level, const char* msg, FILE* redirect, const char* file_name, int line_number, const char* func_name, ...)
 {
 	va_list args;
 	va_start(args, msg);
@@ -254,7 +271,7 @@ static void trace_log(warning level, const char* msg, FILE* redirect, const char
 			printf("Info: ");
 			break;
 		default:
-			printf("Info: ");
+			printf("Unknown Level...: ");
 	}
 	
 	reset_terminal_color();
@@ -267,7 +284,7 @@ static void trace_log(warning level, const char* msg, FILE* redirect, const char
 }
 
 #ifdef __cplusplus // extern c
-	} 
+} 
 #endif
 
 #endif
