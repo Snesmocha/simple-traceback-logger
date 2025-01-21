@@ -24,6 +24,10 @@ extern "C"
 { 
 #endif
 
+// enums
+
+
+
 // terminal manipulation
 typedef enum
 {
@@ -65,6 +69,7 @@ FORCE_INLINE void set_terminal_bg_color(terminal_bg_color color)
     printf("\033[%dm", color);
 }
 
+// Function to reset only background color
 FORCE_INLINE void reset_terminal_bg_color()
 {
     printf("\033[49m");
@@ -98,50 +103,51 @@ static int bg_colors[6] = {
 	T_BG_RED, 
 };	
 
-FORCE_INLINE void enable_save_tracelog(void) 
+static void enable_save_tracelog(void) 
 {
     save_tracelog = 1;
 }
 
-FORCE_INLINE void disable_save_tracelog(void) 
+static void disable_save_tracelog(void) 
 {
     save_tracelog = 0;
 }
 
 
-FORCE_INLINE void enable_file_location(void) 
+static void enable_file_location(void) 
 {
     file_location = 1;
 }
 
-FORCE_INLINE void disable_file_location(void) 
+static void disable_file_location(void) 
 {
     file_location = 0;
 }
 
-FORCE_INLINE void enable_timestamp(void) 
+static void enable_timestamp(void) 
 {
     timestamp = 1;
 }
 
-FORCE_INLINE void disable_timestamp(void) 
+static void disable_timestamp(void) 
 {
     timestamp = 0;
 }
 
 
-FORCE_INLINE void set_file_redirect(FILE* file) 
+static void set_file_redirect(FILE* file) 
 {
     file_redirect = file;
 
 }
 
-FORCE_INLINE void set_log_file_name(const char* name) 
+static void set_log_file_name(const char* name) 
 {
     file_name = name;
 }
 
 // trace log data
+
 typedef enum
 {
 	LOG_INFO,
@@ -153,26 +159,22 @@ typedef enum
 } warning;
 
 #ifndef DISABLE_LOG
-	#define TRACE_LOG(level, msg, ...) \
-		__trace_log(level, msg, file_redirect, __FILE__, __LINE__, __func__, __VA_ARGS__)
-		
+    #define TRACE_LOG(level, msg, ...) \
+        __trace_log(level, file_redirect, __FILE__, __LINE__, __func__,msg, ##__VA_ARGS__)
 #else
-	#define TRACE_LOG(level, msg, ...) (void*)
+    #define TRACE_LOG(level, msg, ...) (void)0
 #endif
-
 #ifndef DISABLE_ASSERT
-	#define ASSERT(c, msg)\
-		disable_save_tracelog()\
-		do{\
-			if(!c){\
-				__trace_log(LOG_FATAL, msg, file_redirect, __FILE__, __LINE__, __func__, __VA_ARGS__); \
-			}\
-		} while(0)\
+	#define ASSERT(c, msg) \
+		do { \
+			if (!(c)) \
+				__trace_log(LOG_FATAL, file_redirect, __FILE__, __LINE__, __func__, msg); \
+		} while (0)
 #else
-	#define ASSERT(c, msg) (void*)
+    #define ASSERT(c, msg, ...) (void)0
 #endif
 
-static void __trace_log(warning level, const char* msg, FILE* redirect, const char* file_name, int line_number, const char* func_name, ...)
+static void __trace_log(warning level, FILE* redirect, const char* file_name, int line_number, const char* func_name, const char* msg, ...)
 {
 	va_list args;
 	va_start(args, msg);
@@ -181,7 +183,7 @@ static void __trace_log(warning level, const char* msg, FILE* redirect, const ch
 	
 	if (save_tracelog)
 	{
-		FILE* file_ptr = (redirect == NULL) ? redirect : fopen(file_name, "a");
+		FILE* file_ptr = (redirect != NULL) ? redirect : fopen(file_name, "a");
 		
 		if (file_location)
 			FILE_LOCATION_PRINT_TOFILE(file_ptr, file_name, line_number, func_name);
