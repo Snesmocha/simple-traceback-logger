@@ -24,10 +24,6 @@ extern "C"
 { 
 #endif
 
-// enums
-
-
-
 // terminal manipulation
 typedef enum
 {
@@ -69,7 +65,6 @@ FORCE_INLINE void set_terminal_bg_color(terminal_bg_color color)
     printf("\033[%dm", color);
 }
 
-// Function to reset only background color
 FORCE_INLINE void reset_terminal_bg_color()
 {
     printf("\033[49m");
@@ -147,7 +142,6 @@ FORCE_INLINE void set_log_file_name(const char* name)
 }
 
 // trace log data
-
 typedef enum
 {
 	LOG_INFO,
